@@ -1,15 +1,15 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 
-// ¿À¸¥ÂÊÀ¸·Î Á¤È®ÇÏ°Ô 5¸¸Å­ ÀÌµ¿ÇÏ°í ½Í´Ù.
+// ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì •í™•í•˜ê²Œ 5ë§Œí¼ ì´ë™í•˜ê³  ì‹¶ë‹¤.
 public class TestMove : MonoBehaviour
 {
-    // ÀÌµ¿°Å¸®
+    // ì´ë™ê±°ë¦¬
     float moveDist = 0;
-    // ¿òÁ÷ÀÏ ¼ö ÀÖ´ÂÁö
+    // ì›€ì§ì¼ ìˆ˜ ìˆëŠ”ì§€
     bool isMove = true;
 
     void Start()
@@ -22,16 +22,16 @@ public class TestMove : MonoBehaviour
     {
         if (isMove)
         {
-            // 1. ¿À¸¥ÂÊÀ¸·Î ¿òÁ÷ÀÌ±â
+            // 1. ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì›€ì§ì´ê¸°
             transform.position += Vector3.right * 5 * Time.deltaTime;
-            // ÀÌµ¿°Å¸® ´©Àû
+            // ì´ë™ê±°ë¦¬ ëˆ„ì 
             moveDist += 5 * Time.deltaTime;
-            // 2. ¸¸¾à¿¡ ¿òÁ÷ÀÎ °Å¸®°¡ 5 º¸´Ù Ä¿Áö¸é
+            // 2. ë§Œì•½ì— ì›€ì§ì¸ ê±°ë¦¬ê°€ 5 ë³´ë‹¤ ì»¤ì§€ë©´
             if (moveDist >= 5)
             {
-                // 3. ¸ØÃß±â
+                // 3. ë©ˆì¶”ê¸°
                 isMove = false;
-                // 4. ¿À¹ö µÈ ÀÌµ¿°Å¸® ¸¸Å­ ¿ŞÂÊÀ¸·Î ÀÌµ¿½ÃÅ°ÀÚ
+                // 4. ì˜¤ë²„ ëœ ì´ë™ê±°ë¦¬ ë§Œí¼ ì™¼ìª½ìœ¼ë¡œ ì´ë™ì‹œí‚¤ì
                 float overDist = moveDist - 5;
                 transform.position += Vector3.left * overDist;
             }
