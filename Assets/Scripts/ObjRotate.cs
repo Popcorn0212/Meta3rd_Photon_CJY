@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ public class ObjRotate : MonoBehaviour
     public bool useRotX;
     public bool useRotY;
 
+    // PhotonView
+    public PhotonView pv;
+
 
     void Start()
     {
@@ -21,14 +25,18 @@ public class ObjRotate : MonoBehaviour
 
     void Update()
     {
-        float mx = Input.GetAxis("Mouse X");
-        float my = Input.GetAxis("Mouse Y");
+        // 만약 내것 이라면
+        if (pv.IsMine)
+        {
+            float mx = Input.GetAxis("Mouse X");
+            float my = Input.GetAxis("Mouse Y");
 
-        if(useRotX) rotX += my * rotSpeed * Time.deltaTime;
-        if(useRotY) rotY += mx * rotSpeed * Time.deltaTime;
+            if (useRotX) rotX += my * rotSpeed * Time.deltaTime;
+            if (useRotY) rotY += mx * rotSpeed * Time.deltaTime;
 
-        rotX = Mathf.Clamp(rotX, -60, 60);
+            rotX = Mathf.Clamp(rotX, -60, 60);
 
-        transform.localEulerAngles = new Vector3(-rotX, rotY, 0);
+            transform.localEulerAngles = new Vector3(-rotX, rotY, 0);
+        }
     }
 }
