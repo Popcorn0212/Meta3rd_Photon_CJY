@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class PlayerMove : MonoBehaviourPun, IPunObservable 
+public class PlayerMove : MonoBehaviourPun//, IPunObservable 
 {
     // 이동속도
     float speed = 5;
@@ -29,6 +29,12 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
 
     void Start()
     {
+        if (photonView.IsMine)
+        {
+            // 마우스 잠그기
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
         // 캐릭터 컨트롤러 컴포넌트 가져오기
         cc = GetComponent<CharacterController>();
         // 내 것일 때만 카메라를 활성화하자
@@ -82,32 +88,32 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             #endregion
         }
         // 나의 Player가 아니라면
-        else
-        {
-            // 위치 보정
-            transform.position = Vector3.Lerp(transform.position, receivePos, Time.deltaTime * lerpSpeed);
-            // 회전 보정
-            transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, Time.deltaTime * lerpSpeed);
-        }
+        //else
+        //{
+        //    // 위치 보정
+        //    transform.position = Vector3.Lerp(transform.position, receivePos, Time.deltaTime * lerpSpeed);
+        //    // 회전 보정
+        //    transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, Time.deltaTime * lerpSpeed);
+        //}
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        // 만약에 내가 데이터를 보낼 수 있는 상태라면 (내 것이라면)
-        if(stream.IsWriting)
-        {
-            // 나의 위치값을 보낸다.
-            stream.SendNext(transform.position);
-            // 나의 회전값을 보낸다
-            stream.SendNext(transform.rotation);
-        }
-        // 데이터를 받을 수 있는 상태라면 (내 것이 아니라면)
-        else if(stream.IsReading)
-        {
-            // 위치값을 받자.
-            transform.position = (Vector3)stream.ReceiveNext();
-            // 회전값을 받자.
-            transform.rotation = (Quaternion)stream.ReceiveNext();
-        }
-    }
+    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    //{
+    //    // 만약에 내가 데이터를 보낼 수 있는 상태라면 (내 것이라면)
+    //    if(stream.IsWriting)
+    //    {
+    //        // 나의 위치값을 보낸다.
+    //        stream.SendNext(transform.position);
+    //        // 나의 회전값을 보낸다
+    //        stream.SendNext(transform.rotation);
+    //    }
+    //    // 데이터를 받을 수 있는 상태라면 (내 것이 아니라면)
+    //    else if(stream.IsReading)
+    //    {
+    //        // 위치값을 받자.
+    //        transform.position = (Vector3)stream.ReceiveNext();
+    //        // 회전값을 받자.
+    //        transform.rotation = (Quaternion)stream.ReceiveNext();
+    //    }
+    //}
 }

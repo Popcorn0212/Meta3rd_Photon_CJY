@@ -9,17 +9,34 @@ public class PlayerFire : MonoBehaviourPun
     // 큐브의 Prefab
     public GameObject cubeFactory;
 
+    // Impact Prefab
     public GameObject impactFactory;
+
+    // 총알 Prefab
+    public GameObject bulletFactory;
+    // 총구의 Transform
+    public Transform firePos;
+
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        
     }
 
     void Update()
     {
         // 만약에 내 것이 아니라면
         if (!photonView.IsMine) return;
+
+        // 마우스 왼쪽 버튼 누르면
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 총알공장에서 총알 생성, 총구위치 세텡, 총구회전 세팅
+            PhotonNetwork.Instantiate("Bullet", firePos.position, Camera.main.transform.rotation);
+
+
+            //photonView.RPC(nameof(CreateBullet), RpcTarget.All, firePos.position, Camera.main.transform.rotation);
+        }
 
         // 마우스 오른쪽 버튼 누르면
         if (Input.GetMouseButtonDown(1))
@@ -42,9 +59,16 @@ public class PlayerFire : MonoBehaviourPun
         {
             // 카메라의 앞방향으로 5만큼 떨어진 위치를 구하자.
             Vector3 pos = Camera.main.transform.position + Camera.main.transform.forward * 5;
-            // 큐브 공장에서 큐브를 생성, 위치, 회전
-            PhotonNetwork.Instantiate("Cube", pos, Quaternion.identity);
+            //// 큐브 공장에서 큐브를 생성, 위치, 회전
+            //PhotonNetwork.Instantiate("Cube", pos, Quaternion.identity);
+            photonView.RPC(nameof(CreateCube), RpcTarget.All, pos);
         }
+    }
+
+    [PunRPC]
+    void CreateBullet(Vector3 position, Quaternion rotation)
+    {
+        Instantiate(bulletFactory, position, rotation);
     }
 
     [PunRPC]
@@ -52,5 +76,11 @@ public class PlayerFire : MonoBehaviourPun
     {
         GameObject impact = Instantiate(impactFactory);
         impact.transform.position = position;
+    }
+
+    [PunRPC]
+    void CreateCube(Vector3 position)
+    {
+        Instantiate(cubeFactory, position, Quaternion.identity);
     }
 }
