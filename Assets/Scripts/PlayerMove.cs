@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class PlayerMove : MonoBehaviourPun//, IPunObservable 
+public class PlayerMove : MonoBehaviourPun, IPunObservable 
 {
     // 이동속도
     float speed = 5;
@@ -20,12 +20,24 @@ public class PlayerMove : MonoBehaviourPun//, IPunObservable
     // 카메라
     public GameObject cam;
 
+    // Animator
+    Animator anim;
+
+    // A D 키 입력 받을 변수
+    float h;
+    // W S 키 입력 받을 변수
+    float v;
+
+
     // 서버에서 넘어오는 위치값
     Vector3 receivePos;
     // 서버에서 넘어오는 회전값
     Quaternion receiveRot;
     //보정 속력
     public float lerpSpeed = 50;
+
+    // LookPos
+    public Transform lookPos;
 
     void Start()
     {
@@ -39,6 +51,8 @@ public class PlayerMove : MonoBehaviourPun//, IPunObservable
         cc = GetComponent<CharacterController>();
         // 내 것일 때만 카메라를 활성화하자
         cam.SetActive(photonView.IsMine);
+        // Animator 가져오기
+        anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -47,8 +61,8 @@ public class PlayerMove : MonoBehaviourPun//, IPunObservable
         if (photonView.IsMine)
         {
             // 키보드 WASD입력
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+            h = Input.GetAxisRaw("Horizontal");
+            v = Input.GetAxisRaw("Vertical");
 
             // 방향 지정
             Vector3 dir = new Vector3(h, 0, v);
@@ -86,34 +100,52 @@ public class PlayerMove : MonoBehaviourPun//, IPunObservable
             //dir.y = yVelocity;
             //cc.Move(dir * Time.deltaTime);
             #endregion
+
+            
         }
-        // 나의 Player가 아니라면
-        //else
-        //{
-        //    // 위치 보정
-        //    transform.position = Vector3.Lerp(transform.position, receivePos, Time.deltaTime * lerpSpeed);
-        //    // 회전 보정
-        //    transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, Time.deltaTime * lerpSpeed);
-        //}
+        //나의 Player가 아니라면
+        else
+        {
+            // 위치 보정
+            transform.position = Vector3.Lerp(transform.position, receivePos, Time.deltaTime * lerpSpeed);
+            // 회전 보정
+            transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, Time.deltaTime * lerpSpeed);
+        }
+
+        // anim을 이용해서 h, v 값을 전달
+        anim.SetFloat("DirH", h);
+        anim.SetFloat("DirV", v);
     }
 
-    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-    //    // 만약에 내가 데이터를 보낼 수 있는 상태라면 (내 것이라면)
-    //    if(stream.IsWriting)
-    //    {
-    //        // 나의 위치값을 보낸다.
-    //        stream.SendNext(transform.position);
-    //        // 나의 회전값을 보낸다
-    //        stream.SendNext(transform.rotation);
-    //    }
-    //    // 데이터를 받을 수 있는 상태라면 (내 것이 아니라면)
-    //    else if(stream.IsReading)
-    //    {
-    //        // 위치값을 받자.
-    //        transform.position = (Vector3)stream.ReceiveNext();
-    //        // 회전값을 받자.
-    //        transform.rotation = (Quaternion)stream.ReceiveNext();
-    //    }
-    //}
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        // 만약에 내가 데이터를 보낼 수 있는 상태라면 (내 것이라면)
+        if (stream.IsWriting)
+        {
+            // 나의 위치값을 보낸다.
+            stream.SendNext(transform.position);
+            // 나의 회전값을 보낸다
+            stream.SendNext(transform.rotation);
+            // 나의 h 값
+            stream.SendNext(h);
+            // 나의 v 값
+            stream.SendNext(v);
+            // LookPos의 위치값을 보낸다
+            stream.SendNext(lookPos.position);
+        }
+        // 데이터를 받을 수 있는 상태라면 (내 것이 아니라면)
+        else if (stream.IsReading)
+        {
+            // 위치값을 받자.
+            receivePos = (Vector3)stream.ReceiveNext();
+            // 회전값을 받자.
+            receiveRot = (Quaternion)stream.ReceiveNext();
+            // 서버에서 전달되는 h 값 받자
+            h = (float)stream.ReceiveNext();
+            // 서버에서 전달되는 v 값 받자
+            v = (float)stream.ReceiveNext();
+            // LookPos의 위치값을 받자
+            lookPos.position = (Vector3)stream.ReceiveNext();
+        }
+    }
 }

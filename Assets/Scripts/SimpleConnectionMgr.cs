@@ -57,7 +57,7 @@ public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
         roomOption.IsOpen = true;
 
         // Room 참여 or 생성
-        PhotonNetwork.JoinOrCreateRoom("meta_unity_room0", roomOption, TypedLobby.Default);
+        PhotonNetwork.JoinOrCreateRoom("meta_unity_room", roomOption, TypedLobby.Default);
     }
 
     // 방 생성 성공 했을 때 호출되는 함수
