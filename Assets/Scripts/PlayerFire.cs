@@ -38,7 +38,7 @@ public class PlayerFire : MonoBehaviourPun
             // 총쏘는 애니메이션 실행(Fire 트리거 발생)
             photonView.RPC(nameof(SetTrigger), RpcTarget.All, "Fire");
             // 총알공장에서 총알 생성, 총구위치 세텡, 총구회전 세팅
-            PhotonNetwork.Instantiate("Bullet", firePos.position, Camera.main.transform.rotation);
+            PhotonNetwork.Instantiate("Bullet", firePos.position, firePos.rotation);
         }
         // 마우스 가운데 휠 버튼 눌렀을때
         if(Input.GetMouseButtonDown(2))
@@ -59,6 +59,13 @@ public class PlayerFire : MonoBehaviourPun
                 // 폭발효과를 생성하고 부딪힌 위치에 놓자.
                 //CreateImpact(hit.point);
                 photonView.RPC(nameof(CreateImpact), RpcTarget.All, hit.point);
+
+                // 부딪힌 놈의 데미지를 주자
+                PlayerFire pf = hit.transform.GetComponent<PlayerFire>();
+                if (pf != null)
+                {
+                    pf.photonView.RPC(nameof(OnDamaged), RpcTarget.All);
+                }
             }
         }
         
@@ -90,6 +97,13 @@ public class PlayerFire : MonoBehaviourPun
     {
         GameObject impact = Instantiate(impactFactory);
         impact.transform.position = position;
+    }
+
+    [PunRPC]
+    void OnDamaged()
+    {
+        HPSystem hpSystem = GetComponentInChildren<HPSystem>();
+        hpSystem.UpdateHp(-1);
     }
 
     [PunRPC]

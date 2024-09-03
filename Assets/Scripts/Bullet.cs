@@ -20,7 +20,7 @@ public class Bullet : MonoBehaviourPun
         if (photonView.IsMine)
         {
             rb = GetComponent<Rigidbody>();
-            rb.velocity = transform.forward * moveSpeed;
+            rb.velocity = transform.right * moveSpeed;
         }
     }
 
