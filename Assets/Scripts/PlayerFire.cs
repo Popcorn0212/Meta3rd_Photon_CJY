@@ -32,6 +32,10 @@ public class PlayerFire : MonoBehaviourPun
         // 만약에 내 것이 아니라면
         if (!photonView.IsMine) return;
 
+        // 마우스의 lockMode 가 None 이면 (마우스 포인터가 활성화 되어 있다면)
+        if (Cursor.lockState == CursorLockMode.None)
+            return;
+
         // 마우스 왼쪽 버튼 누르면
         if (Input.GetMouseButtonDown(0))
         {

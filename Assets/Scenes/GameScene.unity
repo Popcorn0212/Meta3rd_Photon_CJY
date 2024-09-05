@@ -225,6 +225,7 @@ GameObject:
   - component: {fileID: 312486074}
   - component: {fileID: 312486073}
   - component: {fileID: 312486076}
+  - component: {fileID: 312486077}
   m_Layer: 5
   m_Name: ChatView
   m_TagString: Untagged
@@ -339,6 +340,29 @@ MonoBehaviour:
   chatItemFactory: {fileID: 3439530936409892949, guid: 53916f507fe05374698ea91001d7ba68,
     type: 3}
   trContent: {fileID: 617514120}
+  trChatView: {fileID: 312486072}
+--- !u!114 &312486077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 312486071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 2
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2088,6 +2112,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 377715978606080576, guid: 05a6ab0ca528ddb49803d3af5a83e43b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1257805488552860298, guid: 05a6ab0ca528ddb49803d3af5a83e43b,
         type: 3}
