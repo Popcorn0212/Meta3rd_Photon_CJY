@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerFire : MonoBehaviourPun
@@ -12,6 +13,8 @@ public class PlayerFire : MonoBehaviourPun
     // Impact Prefab
     public GameObject impactFactory;
 
+    // RigidBody로 움직이는 총알 Prefab
+    public GameObject bulletFactory;
     // 총알 Prefab
     public GameObject rpcBulletFactory;
 
@@ -21,20 +24,33 @@ public class PlayerFire : MonoBehaviourPun
     // Animator
     Animator anim;
 
+    // 스킬 중심점
+    public Transform skillCenter;
+
 
     void Start()
     {
         anim = GetComponentInChildren<Animator>();
+
+        // HPSystem 가져오자
+        HPSystem hpSystem = GetComponentInChildren<HPSystem>();
+        // onDie 변수에 onDie 함수 설정
+        hpSystem.onDie = Ondie;
     }
 
     void Update()
     {
+        
+
         // 만약에 내 것이 아니라면
         if (!photonView.IsMine) return;
 
         // 마우스의 lockMode 가 None 이면 (마우스 포인터가 활성화 되어 있다면)
         if (Cursor.lockState == CursorLockMode.None)
             return;
+
+        // HP 0 이 되었으면 총 못 쏨
+        if (isDie) return;
 
         // 마우스 왼쪽 버튼 누르면
         if (Input.GetMouseButtonDown(0))
@@ -65,10 +81,10 @@ public class PlayerFire : MonoBehaviourPun
                 photonView.RPC(nameof(CreateImpact), RpcTarget.All, hit.point);
 
                 // 부딪힌 놈의 데미지를 주자
-                PlayerFire pf = hit.transform.GetComponent<PlayerFire>();
-                if (pf != null)
+                HPSystem hPSystem = hit.transform.GetComponentInChildren<HPSystem>();
+                if (hPSystem != null)
                 {
-                    pf.photonView.RPC(nameof(OnDamaged), RpcTarget.All);
+                    hPSystem.UpdateHP(-1);
                 }
             }
         }
@@ -81,6 +97,36 @@ public class PlayerFire : MonoBehaviourPun
             //// 큐브 공장에서 큐브를 생성, 위치, 회전
             //PhotonNetwork.Instantiate("Cube", pos, Quaternion.identity);
             photonView.RPC(nameof(CreateCube), RpcTarget.All, pos);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            int maxBulletCnt = 10;
+            float angle = 360.0f / maxBulletCnt;
+
+            for (int i = 0; i < maxBulletCnt; i++)
+            {
+                #region 싱글 플레이 모드
+                //// 총알 생성
+                //GameObject bullet = Instantiate(bulletFactory);
+                //// skillCenter 를 회전 (angle * i) 만큼 회전
+                //skillCenter.localEulerAngles = new Vector3(0, angle * i, 0);
+
+                //// 생성된 총알을 skillCenter 의 앞방향으로 2 만큼 떨어진 위치에 놓자.
+                //bullet.transform.position = skillCenter.position + skillCenter.forward * 2;
+
+                //// 생성된 총알의 up 방향을 skillCenter의 forward 방향으로 하자
+                //bullet.transform.right = skillCenter.forward;
+                #endregion
+
+                #region 멀티 플레이 모드
+                //skillCenter 를 회전(angle * i) 만큼 회전
+                skillCenter.localEulerAngles = new Vector3(0, angle * i, 0);
+                Vector3 pos = skillCenter.position + skillCenter.forward * 2;
+                Quaternion rot = Quaternion.LookRotation(Vector3.down, skillCenter.forward);
+                PhotonNetwork.Instantiate(bulletFactory.name, pos, rot);
+                #endregion
+            }
         }
     }
 
@@ -104,15 +150,15 @@ public class PlayerFire : MonoBehaviourPun
     }
 
     [PunRPC]
-    void OnDamaged()
-    {
-        HPSystem hpSystem = GetComponentInChildren<HPSystem>();
-        hpSystem.UpdateHp(-1);
-    }
-
-    [PunRPC]
     void CreateCube(Vector3 position)
     {
         Instantiate(cubeFactory, position, Quaternion.identity);
+    }
+
+    // 죽엇니?
+    bool isDie;
+    public void Ondie()
+    {
+        isDie = true;
     }
 }
