@@ -78,11 +78,38 @@ public class PhotonChatMgr : MonoBehaviour, IChatClientListener
     {
         // 만약에 s 의 길이가 0이면 함수를 나가자.
         if (s.Length == 0) return;
-        // 채팅을 보내자
-        chatClient.PublishMessage(currChannel, s);
+
+        // 귓속말인지 판단
+        // /w 아이디 메세지 (/w 최준의 안녕하세요)
+        string[] splitChat = s.Split(" ", 3);
+        if (splitChat[0] == "/w")
+        {
+            // 귓속말을 보내자
+            // splitChat[1] : 아이디 , splitChat[2] : 내용
+            chatClient.SendPrivateMessage(splitChat[1], splitChat[2]);
+        }
+        else
+        {
+            // 채팅을 보내자
+            chatClient.PublishMessage(currChannel, s);
+        }
 
         // 채팅 입력란 초기화
         inputChat.text = "";
+    }
+
+    void CreateChatItem(string sender, object message, Color color)
+    {
+        // ChatItem 생성 (Content 의 자식으로)
+        GameObject go = Instantiate(chatItemFactory, trContent);
+        // 생성된 게임오브젝트에서 ChatItem 컴포넌트 가져온다.
+        ChatItem chatItem = go.GetComponent<ChatItem>();
+        // 가져온 컴포넌트에서 SetText 함수 실행
+        chatItem.SetText(sender + " : " + message);
+        // TMP Text 컴포넌트 가져오자
+        TMP_Text text = go.GetComponent<TMP_Text>();
+        // 가져온 컴포넌트를 이용해서 색을 바꾸자
+        text.color = color;
     }
 
     public void DebugReturn(DebugLevel level, string message)
@@ -112,17 +139,14 @@ public class PhotonChatMgr : MonoBehaviour, IChatClientListener
         {
             print(senders[i] + " : " + messages[i]);
 
-            // ChatItem 생성 (Content 의 자식으로)
-            GameObject go = Instantiate(chatItemFactory, trContent);
-            // 생성된 게임오브젝트에서 ChatItem 컴포넌트 가져온다.
-            ChatItem chatItem = go.GetComponent<ChatItem>();
-            // 가져온 컴포넌트에서 SetText 함수 실행
-            chatItem.SetText(senders[i] + " : " + messages[i]);
+            CreateChatItem(senders[i], messages[i], Color.white);
         }
     }
 
+    // 누군가 나한테 개인메세지를 보냈을 때
     public void OnPrivateMessage(string sender, object message, string channelName)
     {
+        CreateChatItem(sender, message, Color.blue);
     }
 
     // 채팅 채널에 접속이 성공했을 때 들어오는 함수
